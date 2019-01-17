@@ -6,7 +6,7 @@ import java.util.List;
 
 public class CopyExcelSheet {
 
-	private static int numberOfRowsPerFile = 500;
+	private static int numberOfRowsPerFile = 5000;
 
 	private static List<Section> calculateSections(final int numberOfRowsPerFile, final int totalNumberOfRows) {
 		if (totalNumberOfRows <= numberOfRowsPerFile) {
@@ -29,16 +29,19 @@ public class CopyExcelSheet {
 	}
 
 	public void createExcelSheetWithData(String destinationPath, List<List<String>> selectedRowDataList,
-			String sheetName, int start, int finish) {
-		final WorkbookWriter workbookWriter = new WorkbookWriter(destinationPath, selectedRowDataList, sheetName, start,
-				finish);
+			String sheetName, Section section) {
+		final WorkbookWriter workbookWriter = new WorkbookWriter(destinationPath,
+				selectedRowDataList,
+				sheetName,
+				section.getStart(),
+				section.getFinish());
 		workbookWriter.writeSpreedSheet();
 	}
 
 	public static void main(String[] args) {
 
 		CopyExcelSheet ces = new CopyExcelSheet();
-		String sourcePath = "C:\\Users\\Maksim_Tolstik\\Documents\\temp\\largeFileSmall.xlsx";
+		String sourcePath = "C:\\Users\\Maksim_Tolstik\\Documents\\temp\\largeFile.xlsx";
 		String destinationPath = "C:\\Users\\Maksim_Tolstik\\Documents\\temp\\largeFile_7.xlsx";
 
 		final SheetExtractor sheetExtractor = new SheetExtractor(sourcePath);
@@ -48,13 +51,11 @@ public class CopyExcelSheet {
 		final int totalNumberOfRows = sheetExtractor.getNumberOfRows();
 		List<Section> sections = calculateSections(numberOfRowsPerFile, totalNumberOfRows);
 
-//		for (int i = 0; i < sections.size(); i++) {
-//
-//			final Section section = sections.get(i);
-//			ces.createExcelSheetWithData("C:\\Users\\Maksim_Tolstik\\Documents\\temp\\small_file_"+i+".xlsx", selectedRowDataList, sheetName, section.getStart() , section.getFinish());
-//		}
-//		ces.createExcelSheetWithData("C:\\Users\\Maksim_Tolstik\\Documents\\temp\\largeFile_4.xlsx", selectedRowDataList, sheetName, 101, 400);
-
+		for (int i = 0; i < sections.size(); i++) {
+			final Section section = sections.get(i);
+			ces.createExcelSheetWithData("C:\\Users\\Maksim_Tolstik\\Documents\\temp\\small_file_" + i + ".xlsx",
+					selectedRowDataList, sheetName, section);
+		}
 	}
 
 }

@@ -1,11 +1,11 @@
 package excel.separator;
 
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -22,7 +22,9 @@ public class SheetExtractor {
 	private List<List<String>> sheetDataList = new ArrayList<>();
 
 	private List<String> header = new ArrayList<>();
+
 	private int firstRow;
+
 	private int lastRow;
 
 	public SheetExtractor(final String excelFilePath) {
@@ -47,15 +49,24 @@ public class SheetExtractor {
 	private void parseSheetData() {
 		try (FileInputStream fis = new FileInputStream(excelFilePath.trim())) {
 
-			excelWorkBook = new XSSFWorkbook(fis);
+			excelWorkBook = StreamingReader.builder()
+					.rowCacheSize(1000)
+					.bufferSize(16000)
+					.open(fis);
+//			excelWorkBook = new XSSFWorkbook(fis);
 			Sheet copySheet = getSheet();
-			firstRow = copySheet.getFirstRowNum();
-			lastRow = copySheet.getLastRowNum();
+//			firstRow = copySheet.getFirstRowNum();
+//			lastRow = copySheet.getLastRowNum();
 
-			header = createListFromRow(copySheet, firstRow);
+//			header = createListFromRow(copySheet, firstRow);
 			/*  First row is excel file header, so read data from row next to it. */
-			for (int i = firstRow; i < lastRow + 1; i++) {
-				List<String> rowDataList = createListFromRow(copySheet, i);
+
+//			for (int i = firstRow; i < lastRow + 1; i++) {
+//				List<String> rowDataList = createListFromRow(copySheet, i);
+//				sheetDataList.add(rowDataList);
+//			}
+			for (final Row row : copySheet) {
+				List<String> rowDataList = createListFromRow(row);
 				sheetDataList.add(rowDataList);
 			}
 
@@ -75,15 +86,29 @@ public class SheetExtractor {
 		List<String> rowDataList = new ArrayList<>();
 		for (int j = fCellNum; j < lCellNum; j++) {
 			final Cell cell = row.getCell(j);
-
 			putCellToListAsString(rowDataList, cell);
 
 		}
 		return rowDataList;
 	}
 
-	public int getNumberOfRows(){
-		return lastRow - firstRow;
+	private List<String> createListFromRow(Row row) {
+
+		int fCellNum = row.getFirstCellNum();
+		int lCellNum = row.getLastCellNum();
+
+		/* Loop in cells, add each cell value to the list.*/
+		List<String> rowDataList = new ArrayList<>();
+		for (int j = fCellNum; j < lCellNum; j++) {
+			final Cell cell = row.getCell(j);
+			putCellToListAsString(rowDataList, cell);
+
+		}
+		return rowDataList;
+	}
+
+	public int getNumberOfRows() {
+		return sheetDataList.size();
 	}
 
 	private void putCellToListAsString(final List<String> rowDataList, final Cell cell) {
