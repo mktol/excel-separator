@@ -18,10 +18,23 @@ public class WorkbookWriter {
 
 	private final String sheetName;
 
-	public WorkbookWriter(final String excelFilePath, final List<List<String>> dataList, final String sheetName) {
+	private final int start;
+
+	private final int finish;
+
+	private List<String> headers;
+
+	public WorkbookWriter(final String excelFilePath,
+			final List<List<String>> dataList,
+			final String sheetName,
+			int start,
+			int finish) {
 		this.excelFilePath = excelFilePath;
 		this.dataList = dataList;
 		this.sheetName = sheetName;
+		this.start = start;
+		this.finish = finish;
+		this.headers = dataList.get(0);
 	}
 
 	public void writeSpreedSheet() {
@@ -30,7 +43,7 @@ public class WorkbookWriter {
 				FileOutputStream fileOutputStream = new FileOutputStream(excelFilePath)) {
 			final Sheet newSheet = workBook.createSheet(sheetName);
 			if (CollectionUtils.isNotEmpty(dataList)) {
-				populateWorkBook(dataList, newSheet);
+				populateWorkBook(newSheet);
 			}
 			workBook.write(fileOutputStream);
 			System.out.println("New sheet added in excel file " + excelFilePath + " successfully. ");
@@ -45,19 +58,37 @@ public class WorkbookWriter {
 		}
 	}
 
-	private void populateWorkBook(final List<List<String>> dataList, final Sheet newSheet) {
-		int size = dataList.size();
-		for (int i = 0; i < size; i++) {
+	private void populateWorkBook(final Sheet newSheet) {
+		validateStartAndFinish();
+		Row header = newSheet.createRow(0);
+		populateRow(headers, header);
+		int iter = 1;
+		for (int i = start; i < finish; i++) {
 			List<String> cellDataList = dataList.get(i);
-			/* Create row to save the copied data. */
-			Row row = newSheet.createRow(i + 1);
-
-			int columnNumber = cellDataList.size();
-
-			for (int j = 0; j < columnNumber; j++) {
-				String cellValue = cellDataList.get(j);
-				row.createCell(j).setCellValue(cellValue);
-			}
+			Row row = newSheet.createRow(iter++);
+			populateRow(cellDataList, row);
 		}
+	}
+
+	private void populateRow(final List<String> cellDataList, final Row row) {
+		int columnNumber = cellDataList.size();
+
+		for (int j = 0; j < columnNumber; j++) {
+			String cellValue = cellDataList.get(j);
+			row.createCell(j).setCellValue(cellValue);
+		}
+	}
+
+	private void validateStartAndFinish() {
+		final int size = dataList.size();
+		if (!isStartAndFinishValid(size)) {
+			throw new RuntimeException(
+					"start or finish is not valid!" + "start =" + start + ", finish = " + finish + ", number of rows = "
+							+ size);
+		}
+	}
+
+	private boolean isStartAndFinishValid(final int size) {
+		return start <= size && finish <= size && finish > 0 && start >= 0 && start < finish;
 	}
 }

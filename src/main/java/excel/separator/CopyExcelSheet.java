@@ -1,11 +1,37 @@
 package excel.separator;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class CopyExcelSheet {
 
-	public void createExcelSheetWithData(String excelFilePath, List<List<String>> dataList, String sheetName) {
-		final WorkbookWriter workbookWriter = new WorkbookWriter(excelFilePath, dataList, sheetName);
+	private static int numberOfRowsPerFile = 500;
+
+	private static List<Section> calculateSections(final int numberOfRowsPerFile, final int totalNumberOfRows) {
+		if (totalNumberOfRows <= numberOfRowsPerFile) {
+			return Collections.singletonList(new Section(0, totalNumberOfRows));
+		}
+
+		List<Section> sections = new ArrayList<>();
+		for (int i = 0; i <= totalNumberOfRows - numberOfRowsPerFile; i += numberOfRowsPerFile) {
+			Section section = new Section(i, i + numberOfRowsPerFile);
+			sections.add(section);
+		}
+
+		final int lastFileSize = totalNumberOfRows % numberOfRowsPerFile;
+
+		if (lastFileSize != 0) {
+			sections.add(new Section(totalNumberOfRows - lastFileSize, totalNumberOfRows));
+		}
+
+		return sections;
+	}
+
+	public void createExcelSheetWithData(String destinationPath, List<List<String>> selectedRowDataList,
+			String sheetName, int start, int finish) {
+		final WorkbookWriter workbookWriter = new WorkbookWriter(destinationPath, selectedRowDataList, sheetName, start,
+				finish);
 		workbookWriter.writeSpreedSheet();
 	}
 
@@ -13,13 +39,21 @@ public class CopyExcelSheet {
 
 		CopyExcelSheet ces = new CopyExcelSheet();
 		String sourcePath = "C:\\Users\\Maksim_Tolstik\\Documents\\temp\\largeFileSmall.xlsx";
-		String destinationPath = "C:\\Users\\Maksim_Tolstik\\Documents\\temp\\largeFile_5.xlsx";
+		String destinationPath = "C:\\Users\\Maksim_Tolstik\\Documents\\temp\\largeFile_7.xlsx";
 
-		final SheetExtractor sheetExtractor = new SheetExtractor(sourcePath, 0, 1300);
+		final SheetExtractor sheetExtractor = new SheetExtractor(sourcePath);
 		List<List<String>> selectedRowDataList = sheetExtractor.getSheetDataList();
 		String sheetName = sheetExtractor.getSheetName();
 
-		ces.createExcelSheetWithData(destinationPath, selectedRowDataList, sheetName);
+		final int totalNumberOfRows = sheetExtractor.getNumberOfRows();
+		List<Section> sections = calculateSections(numberOfRowsPerFile, totalNumberOfRows);
+
+//		for (int i = 0; i < sections.size(); i++) {
+//
+//			final Section section = sections.get(i);
+//			ces.createExcelSheetWithData("C:\\Users\\Maksim_Tolstik\\Documents\\temp\\small_file_"+i+".xlsx", selectedRowDataList, sheetName, section.getStart() , section.getFinish());
+//		}
+//		ces.createExcelSheetWithData("C:\\Users\\Maksim_Tolstik\\Documents\\temp\\largeFile_4.xlsx", selectedRowDataList, sheetName, 101, 400);
 
 	}
 

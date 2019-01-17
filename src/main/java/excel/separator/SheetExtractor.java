@@ -17,24 +17,22 @@ public class SheetExtractor {
 
 	private final String excelFilePath;
 
-	private final int startRow;
-
-	private final int endRow;
-
 	Workbook excelWorkBook = null;
 
 	private List<List<String>> sheetDataList = new ArrayList<>();
 
-	public SheetExtractor(final String excelFilePath, final int startRow, final int endRow) {
+	private List<String> header = new ArrayList<>();
+	private int firstRow;
+	private int lastRow;
+
+	public SheetExtractor(final String excelFilePath) {
 		this.excelFilePath = excelFilePath;
-		this.startRow = startRow;
-		this.endRow = endRow;
 		this.sheetDataList = extractSheetData();
 	}
 
 	private List<List<String>> extractSheetData() {
 		validateFilePath();
-		populateSheetDataList();
+		parseSheetData();
 		return sheetDataList;
 	}
 
@@ -46,24 +44,19 @@ public class SheetExtractor {
 		return StringUtils.isEmpty(getSheet().getSheetName()) ? DEFAULT_SHEET_NAME : getSheet().getSheetName();
 	}
 
-	private void populateSheetDataList() {
+	private void parseSheetData() {
 		try (FileInputStream fis = new FileInputStream(excelFilePath.trim())) {
 
 			excelWorkBook = new XSSFWorkbook(fis);
 			Sheet copySheet = getSheet();
+			firstRow = copySheet.getFirstRowNum();
+			lastRow = copySheet.getLastRowNum();
 
-			int firstRow = copySheet.getFirstRowNum();
-			int lastRow = copySheet.getLastRowNum();
-
+			header = createListFromRow(copySheet, firstRow);
 			/*  First row is excel file header, so read data from row next to it. */
-			for (int i = firstRow + 1; i < lastRow + 1; i++) {
-				/* Only get desired row data. */
-				if (satisfyRestriction(startRow, endRow, i)) {
-					List<String> rowDataList = createListFromRow(copySheet, i);
-					sheetDataList.add(rowDataList);
-				} else {
-					break;
-				}
+			for (int i = firstRow; i < lastRow + 1; i++) {
+				List<String> rowDataList = createListFromRow(copySheet, i);
+				sheetDataList.add(rowDataList);
 			}
 
 		} catch (Exception ex) {
@@ -82,18 +75,22 @@ public class SheetExtractor {
 		List<String> rowDataList = new ArrayList<>();
 		for (int j = fCellNum; j < lCellNum; j++) {
 			final Cell cell = row.getCell(j);
-			if (cell == null) {
-				rowDataList.add(null);
-				continue;
-			}
-			// Set the cell data value
+
 			putCellToListAsString(rowDataList, cell);
 
 		}
 		return rowDataList;
 	}
 
+	public int getNumberOfRows(){
+		return lastRow - firstRow;
+	}
+
 	private void putCellToListAsString(final List<String> rowDataList, final Cell cell) {
+		if (cell == null) {
+			rowDataList.add(null);
+			return;
+		}
 		switch (cell.getCellType()) {
 			case BLANK:
 				rowDataList.add(cell.getStringCellValue());
@@ -132,7 +129,7 @@ public class SheetExtractor {
 		return excelWorkBook.getSheetAt(0);
 	}
 
-	private boolean satisfyRestriction(final int startRow, final int endRow, final int i) {
-		return i >= startRow && i <= endRow;
+	public List<String> getHeader() {
+		return new ArrayList<>(header);
 	}
 }
