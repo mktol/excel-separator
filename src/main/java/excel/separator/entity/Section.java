@@ -1,4 +1,4 @@
-package excel.separator;
+package excel.separator.entity;
 
 public class Section {
 
@@ -15,16 +15,8 @@ public class Section {
 		return start;
 	}
 
-	public void setStart(final int start) {
-		this.start = start;
-	}
-
 	public int getFinish() {
 		return finish;
-	}
-
-	public void setFinish(final int finish) {
-		this.finish = finish;
 	}
 
 	@Override

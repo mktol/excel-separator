@@ -65,27 +65,13 @@
 						<configuration>
 							<classifier>spring-boot</classifier>
 							<mainClass>
-								excel.separator.SheetSeparator
+								excel.separator.Main
 							</mainClass>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
-			<!--<plugin>-->
-				<!--&lt;!&ndash; Build an executable JAR &ndash;&gt;-->
-				<!--<groupId>org.apache.maven.plugins</groupId>-->
-				<!--<artifactId>maven-jar-plugin</artifactId>-->
-				<!--<version>3.1.1</version>-->
-				<!--<configuration>-->
-					<!--<archive>-->
-						<!--<manifest>-->
-							<!--<addClasspath>true</addClasspath>-->
-							<!--<classpathPrefix>libs/</classpathPrefix>-->
-							<!--<mainClass>excel.separator.SheetSeparator</mainClass>-->
-						<!--</manifest>-->
-					<!--</archive>-->
-				<!--</configuration>-->
-			<!--</plugin>-->
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -94,24 +80,6 @@
 					<target>8</target>
 				</configuration>
 			</plugin>
-			<!--<plugin>-->
-				<!--<groupId>org.apache.maven.plugins</groupId>-->
-				<!--<artifactId>maven-dependency-plugin</artifactId>-->
-				<!--<executions>-->
-					<!--<execution>-->
-						<!--<id>copy-dependencies</id>-->
-						<!--<phase>prepare-package</phase>-->
-						<!--<goals>-->
-							<!--<goal>copy-dependencies</goal>-->
-						<!--</goals>-->
-						<!--<configuration>-->
-							<!--<outputDirectory>-->
-								<!--${project.build.directory}/libs-->
-							<!--</outputDirectory>-->
-						<!--</configuration>-->
-					<!--</execution>-->
-				<!--</executions>-->
-			<!--</plugin>-->
 		</plugins>
 	</build>
 

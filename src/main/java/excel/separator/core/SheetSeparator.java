@@ -1,4 +1,7 @@
-package excel.separator;
+package excel.separator.core;
+
+import excel.separator.entity.Section;
+import excel.separator.util.FileUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -12,13 +15,12 @@ public class SheetSeparator {
 
 		final SheetExtractor sheetExtractor = new SheetExtractor(sourcePath);
 		List<List<String>> selectedRowDataList = sheetExtractor.getSheetDataList();
-		String sheetName = sheetExtractor.getSheetName();
 
+		String sheetName = sheetExtractor.getSheetName();
 		final int totalNumberOfRows = sheetExtractor.getNumberOfRows();
 		List<Section> sections = calculateSections(numberOfRowsPerFile, totalNumberOfRows);
 
-		final List<File> files = FileUtills.generateNewNames(sourcePath, sections.size());
-
+		final List<File> files = FileUtils.generateNewNames(sourcePath, sections.size());
 		for (int i = 0; i < sections.size(); i++) {
 			final Section section = sections.get(i);
 			createExcelSheetWithData(files.get(i).getAbsolutePath(),
@@ -26,7 +28,7 @@ public class SheetSeparator {
 		}
 	}
 
-	public void createExcelSheetWithData(String destinationPath, List<List<String>> selectedRowDataList,
+	private void createExcelSheetWithData(String destinationPath, List<List<String>> selectedRowDataList,
 			String sheetName, Section section) {
 		final WorkbookWriter workbookWriter = new WorkbookWriter(destinationPath,
 				selectedRowDataList,
@@ -59,13 +61,4 @@ public class SheetSeparator {
 		return sections;
 	}
 
-	public static void main(String[] args) {
-
-		System.out.println("\'"+args[1]+"\'");
-		System.out.println("\'"+args[0]+"\'");
-		int numberOfRowsPerFile = Integer.parseInt(args[1]);
-		String sourcePath = args[0];
-
-		new SheetSeparator().executeSeparation(numberOfRowsPerFile, sourcePath, "");
-	}
 }

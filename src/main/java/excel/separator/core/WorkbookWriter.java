@@ -1,4 +1,4 @@
-package excel.separator;
+package excel.separator.core;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WorkbookWriter {
@@ -34,7 +35,7 @@ public class WorkbookWriter {
 		this.sheetName = sheetName;
 		this.start = start;
 		this.finish = finish;
-		this.headers = dataList.get(0);
+		this.headers = new ArrayList<>(dataList.get(0));
 	}
 
 	public void writeSpreedSheet() {
@@ -46,7 +47,8 @@ public class WorkbookWriter {
 				populateWorkBook(newSheet);
 			}
 			workBook.write(fileOutputStream);
-			System.out.println("New sheet added in excel file " + excelFilePath + " successfully. ");
+			System.out.println("Sheet added in excel file successfully: " + excelFilePath);
+			System.out.println("Sheet added in excel file successfully: " + excelFilePath);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -60,14 +62,18 @@ public class WorkbookWriter {
 
 	private void populateWorkBook(final Sheet newSheet) {
 		validateStartAndFinish();
-		Row header = newSheet.createRow(0);
-		populateRow(headers, header);
+		createHeader(newSheet);
 		int iter = 1;
 		for (int i = start; i < finish; i++) {
 			List<String> cellDataList = dataList.get(i);
 			Row row = newSheet.createRow(iter++);
 			populateRow(cellDataList, row);
 		}
+	}
+
+	private void createHeader(final Sheet newSheet) {
+		Row header = newSheet.createRow(0);
+		populateRow(headers, header);
 	}
 
 	private void populateRow(final List<String> cellDataList, final Row row) {

@@ -1,4 +1,4 @@
-package excel.separator;
+package excel.separator.core;
 
 import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.commons.lang3.StringUtils;
@@ -13,19 +13,17 @@ import java.util.List;
 
 public class SheetExtractor {
 
-	public static final String DEFAULT_SHEET_NAME = "Table 1";
+	private static final String DEFAULT_SHEET_NAME = "Table 1";
+
+	private static final int DEFAULT_ROW_CACHE_SIZE = 1000;
+
+	private static final int DEFAULT_BUFFER_SIZE = 1024 * 24;
 
 	private final String excelFilePath;
 
 	Workbook excelWorkBook = null;
 
 	private List<List<String>> sheetDataList = new ArrayList<>();
-
-	private List<String> header = new ArrayList<>();
-
-	private int firstRow;
-
-	private int lastRow;
 
 	public SheetExtractor(final String excelFilePath) {
 		this.excelFilePath = excelFilePath;
@@ -50,8 +48,8 @@ public class SheetExtractor {
 		try (FileInputStream fis = new FileInputStream(excelFilePath.trim())) {
 
 			excelWorkBook = StreamingReader.builder()
-					.rowCacheSize(1000)
-					.bufferSize(16000)
+					.rowCacheSize(DEFAULT_ROW_CACHE_SIZE)
+					.bufferSize(DEFAULT_BUFFER_SIZE)
 					.open(fis);
 
 			Sheet copySheet = getSheet();
@@ -66,13 +64,11 @@ public class SheetExtractor {
 		}
 	}
 
-
 	private List<String> createListFromRow(Row row) {
 
 		int fCellNum = row.getFirstCellNum();
 		int lCellNum = row.getLastCellNum();
 
-		/* Loop in cells, add each cell value to the list.*/
 		List<String> rowDataList = new ArrayList<>();
 		for (int j = fCellNum; j < lCellNum; j++) {
 			final Cell cell = row.getCell(j);
@@ -128,7 +124,4 @@ public class SheetExtractor {
 		return excelWorkBook.getSheetAt(0);
 	}
 
-	public List<String> getHeader() {
-		return new ArrayList<>(header);
-	}
 }
