@@ -53,18 +53,8 @@ public class SheetExtractor {
 					.rowCacheSize(1000)
 					.bufferSize(16000)
 					.open(fis);
-//			excelWorkBook = new XSSFWorkbook(fis);
+
 			Sheet copySheet = getSheet();
-//			firstRow = copySheet.getFirstRowNum();
-//			lastRow = copySheet.getLastRowNum();
-
-//			header = createListFromRow(copySheet, firstRow);
-			/*  First row is excel file header, so read data from row next to it. */
-
-//			for (int i = firstRow; i < lastRow + 1; i++) {
-//				List<String> rowDataList = createListFromRow(copySheet, i);
-//				sheetDataList.add(rowDataList);
-//			}
 			for (final Row row : copySheet) {
 				List<String> rowDataList = createListFromRow(row);
 				sheetDataList.add(rowDataList);
@@ -76,21 +66,6 @@ public class SheetExtractor {
 		}
 	}
 
-	private List<String> createListFromRow(final Sheet copySheet, final int i) {
-		Row row = copySheet.getRow(i);
-
-		int fCellNum = row.getFirstCellNum();
-		int lCellNum = row.getLastCellNum();
-
-		/* Loop in cells, add each cell value to the list.*/
-		List<String> rowDataList = new ArrayList<>();
-		for (int j = fCellNum; j < lCellNum; j++) {
-			final Cell cell = row.getCell(j);
-			putCellToListAsString(rowDataList, cell);
-
-		}
-		return rowDataList;
-	}
 
 	private List<String> createListFromRow(Row row) {
 
@@ -102,7 +77,6 @@ public class SheetExtractor {
 		for (int j = fCellNum; j < lCellNum; j++) {
 			final Cell cell = row.getCell(j);
 			putCellToListAsString(rowDataList, cell);
-
 		}
 		return rowDataList;
 	}
